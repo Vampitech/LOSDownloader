@@ -2,6 +2,7 @@
 chcp 65001
 color 1f
 setlocal enabledelayedexpansion
+set "SCRIPT_DIR=%~dp0"
 
 where /q tar
 if %errorlevel% neq 0 (
@@ -47,24 +48,24 @@ if %errorlevel% == 1 (
 )
 
 :bajarArchivos
-mkdir out\fase1
-mkdir out\fase2\switchroot\android
-mkdir out\fase2\switchroot\install
+mkdir "%SCRIPT_DIR%out\fase1"
+mkdir "%SCRIPT_DIR%out\fase2\switchroot\android"
+mkdir "%SCRIPT_DIR%out\fase2\switchroot\install"
 curl -s %LOS_EP% > assets.json
 jq -r ".[0].files[].filename" assets.json > archivos.txt
 
 echo DESCARGANDO ARCHIVOS DE LINEAGE OS... ESPERA
 for /f "delims=" %%a in ('jq -r ".[0].files[].url" assets.json') do (
-    wget -P out\fase2 %%a
+    wget -P "%SCRIPT_DIR%out\fase2" %%a
 )
-wget -qP out\fase2\switchroot\android https://wiki.lineageos.org/images/device_specific/nx/bootlogo_android.bmp
-wget -qP out\fase2\switchroot\android https://wiki.lineageos.org/images/device_specific/nx/icon_android_hue.bmp
+wget -qP "%SCRIPT_DIR%out\fase2\switchroot\android" https://wiki.lineageos.org/images/device_specific/nx/bootlogo_android.bmp
+wget -qP "%SCRIPT_DIR%out\fase2\switchroot\android" https://wiki.lineageos.org/images/device_specific/nx/icon_android_hue.bmp
 
 echo COMPROBANDO ARCHIVOS
-for /f "delims=" %%a in (%~dp0archivos.txt) do (
+for /f "delims=" %%a in (archivos.txt) do (
     set "archivo=%%a"
 
-    if exist "%~dp0\out\fase2\!archivo!" (
+    if exist "%SCRIPT_DIR%out\fase2\!archivo!" (
         echo !archivo! Comprobacion OK!.
     ) else (
         echo !archivo! NO se descargo.
@@ -74,24 +75,24 @@ for /f "delims=" %%a in (%~dp0archivos.txt) do (
 )
 
 echo DESCARGANDO Gapps (Google Play)
-wget -qO- "https://api.github.com/repos/MindTheGapps/15.0.0-arm64/releases/latest" | jq -r ".assets[0].browser_download_url" | wget -P out\fase2 -i -
+wget -qO- "https://api.github.com/repos/MindTheGapps/15.0.0-arm64/releases/latest" | jq -r ".assets[0].browser_download_url" | wget -P "%SCRIPT_DIR%out\fase2" -i -
 
 echo DESCARGANDO Hekate
-for /f "delims=" %%a in ('wget -qO- "https://api.github.com/repos/ctcaer/hekate/releases/latest" ^| jq -r ".assets[0].name"') do set hekafile=%%a
-wget -qO- "https://api.github.com/repos/ctcaer/hekate/releases/latest" | jq -r ".assets[0].browser_download_url" | wget -qP out\fase1 -i -
-tar -xf out\fase1\%hekafile% -C out\fase1
-del out\fase1\%hekafile%
-ren out\fase1\*.bin payload.bin
+for /f "delims=" %%a in ('wget -qO- "https://api.github.com/repos/ctcaer/hekate/releases/latest" ^| jq -r ".assets[0].name"') do set "hekafile=%%a"
+wget -qO- "https://api.github.com/repos/ctcaer/hekate/releases/latest" | jq -r ".assets[0].browser_download_url" | wget -qP "%SCRIPT_DIR%out\fase1" -i -
+tar -xf "%SCRIPT_DIR%out\fase1\!hekafile!" -C "%SCRIPT_DIR%out\fase1"
+del "%SCRIPT_DIR%out\fase1\!hekafile!"
+ren "%SCRIPT_DIR%out\fase1\*.bin" payload.bin
 
 rem ATMOS
-wget -qP out\fase1 https://tanjiro.vampitech.net/vtrepo/atmovan.zip
-tar -xf out\fase1\atmovan.zip -C out\fase1
-del out\fase1\atmovan.zip
+wget -qO- "https://api.github.com/repos/vampitech/atmovainilla/releases/latest" | jq -r ".assets[0].browser_download_url" | wget -qP "%SCRIPT_DIR%out\fase1" -i -
+tar -xf "%SCRIPT_DIR%out\fase1\atmos_vanilla.zip" -C "%SCRIPT_DIR%out\fase1"
+del "%SCRIPT_DIR%out\fase1\atmos_vanilla.zip"
 
 echo MOVIENDO Y ORGANIZANDO ARCHIVOS...
-for %%i in (%~dp0\out\fase2\boot.img %~dp0\out\fase2\recovery.img %~dp0\out\fase2\nx-plat.dtimg) do (move %%i %~dp0\out\fase2\switchroot\install)
-for %%i in (%~dp0\out\fase2\bl31.bin %~dp0\out\fase2\bl33.bin %~dp0\out\fase2\boot.scr) do (move %%i %~dp0\out\fase2\switchroot\android)
-del %~dp0\out\fase2\super_empty.img
+for %%i in ("%SCRIPT_DIR%out\fase2\boot.img" "%SCRIPT_DIR%out\fase2\recovery.img" "%SCRIPT_DIR%out\fase2\nx-plat.dtimg") do (move %%i "%SCRIPT_DIR%out\fase2\switchroot\install")
+for %%i in ("%SCRIPT_DIR%out\fase2\bl31.bin" "%SCRIPT_DIR%out\fase2\bl33.bin" "%SCRIPT_DIR%out\fase2\boot.scr") do (move %%i "%SCRIPT_DIR%out\fase2\switchroot\android")
+del "%SCRIPT_DIR%out\fase2\super_empty.img"
 del assets.json
 del archivos.txt
 rem cls
@@ -112,21 +113,19 @@ echo 1. Sí (Recomendado)
 echo 2. Mantener Atmosphere básico
 echo.
 choice /c 12 /n /m "Ingresa una opcion: "
-if %errorlevel% == 1 (
-    goto bajarNext
-) else if %errorlevel% == 2 (
-    goto NoNeXTend
+if %errorlevel% == 1 goto bajarNext
+if %errorlevel% == 2 goto NoNeXTend
 )
 
 
 :bajarNeXT
 echo Descargando e integrando NeXT
-wget -qO- "https://codeberg.org/api/v1/repos/vampitech/NeXT/releases/latest" | jq -r ".assets[0].browser_download_url" | wget -P out\fase2 -i -
-tar -xf out\fase2\NeXT.zip -C out\fase2
-del out\fase2\NeXT.zip
-rmdir /s /q out\fase2\PC
-xcopy out\fase2\SD\* out\fase2\ /E /H /Y
-rmdir /s /q out\fase2\SD
+wget -qO- "https://codeberg.org/api/v1/repos/vampitech/NeXT/releases/latest" | jq -r ".assets[0].browser_download_url" | wget -P "%SCRIPT_DIR%out\fase2" -i -
+tar -xf "%SCRIPT_DIR%out\fase2\NeXT.zip" -C "%SCRIPT_DIR%out\fase2"
+del "%SCRIPT_DIR%out\fase2\NeXT.zip"
+rmdir /s /q "%SCRIPT_DIR%out\fase2\PC"
+xcopy "%SCRIPT_DIR%out\fase2\SD\*" "%SCRIPT_DIR%out\fase2\" /E /H /Y
+rmdir /s /q "%SCRIPT_DIR%out\fase2\SD"
 echo NeXT ha sido integrado correctamente
 pause
 goto end
