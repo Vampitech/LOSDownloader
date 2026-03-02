@@ -2,16 +2,15 @@
 **Español**
 
 # Lineage OS Downlaoder por Vampitech.net
-Este es un script muy simple para complementar un video tutorial para las personas interesadas en instalar la más reciente release de Android 15 para Ni Switch
+Aplicativo muy simple creado como complemento de un video tutorial para las personas interesadas en instalar la más reciente release de Android 15 para Nintendo Switch
 
 # Requisitos
-- Windows 10 1809 or superior
-- Windows 11 (cualquier version)
+- Windows 10 / 11
 
 # Uso
-- Extraer ZIP
-- Ejecutar lineagedownloader.bat
+- Ejecutar LOSDownloader.exe
 - Escoger una opción TAB o Android TV
+- Opcionales *Incluír paquete NeXT (Oficial de Vampitech) *Incluír Zip Magisk para aplicar root via recovery
 - Esperar para la descarga de archivos y preparación de los mismos.
 - Si todo salió bien, tendrá como resultado una carpeta OUT con 2 carpetas mas dentro.
 
@@ -26,15 +25,14 @@ El propietario de este repositorio no se hace responsable de los daños causados
 **English**
 # Lineage OS Downloader by Vampitech.net
 
-This is a pretty simple script to complement a video tutorial for people interested in install latest release of Lineage OS Android for N Switch L4T.
+This is a pretty simple app to complement a video tutorial for people interested in install latest release of Lineage OS Android for N Switch L4T.
 
 # Requirements
- - Windows 10 1809 or above
- - Windows 11 (any version)
+ - Windows 10 / 11
 
 # Usage
 - Extract ZIP
-- Run lineagedownloader.bat
+- Run LOSDownloader.exe
 - Choose an option TAB o ATV
 - Wait for downloads and files preparing.
 - If all went fine, you will have an OUT folder with 2 more folders inside of it
